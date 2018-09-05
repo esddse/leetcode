@@ -1,3 +1,6 @@
+
+from collections import deque
+
 class Solution:
     def findTarget(self, root, k):
         """
@@ -6,15 +9,20 @@ class Solution:
         :rtype: bool
         """
         
+        if not root:
+            return False
 
-        def find(root, k, num):
-            if not root or num < 1:
-                return False
-            if num == 1 and root.val == k:
+        queue = [root]
+        nums = set()
+        for node in queue:
+            val = node.val
+            if k - val in nums:
                 return True
+            nums.add(val)
 
-            not_select = find(root.left, k, num) or find(root.right, k, num)
-            select = find(root.left, k-root.val, num-1) or find(root.right, k-root.val, num-1)
-            return not_select or select
+            if node.left:
+                queue.append(node.left)
+            if node.right:
+                queue.append(node.right)
 
-        return find(root, k, 2)
+        return False
