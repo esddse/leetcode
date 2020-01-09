@@ -1,0 +1,132 @@
+# 5295 find n unique integers sum up to zero
+class Solution:
+	def sumZero(self, n: int) -> List[int]:
+		ret = []
+		if n % 2 == 0:
+			for i in range(n//2):
+				ret.append(-(i+1))
+				ret.append(i+1)
+		else:
+			ret.append(0)
+			for i in range((n-1)//2):
+				ret.append(-(i+1))
+				ret.append(i+1)
+		return ret
+		
+		
+# 5296 all elements in two binary search trees
+
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, x):
+#         self.val = x
+#         self.left = None
+#         self.right = None
+
+class Solution:
+	def getAllElements(self, root1: TreeNode, root2: TreeNode) -> List[int]:
+	
+		def dfs(node, lst):
+			if not node:
+				return 
+			dfs(node.left, lst)
+			lst.append(node.val)
+			dfs(node.right, lst)
+			return 
+		
+		lst1, lst2 = [], []
+		dfs(root1, lst1)
+		dfs(root2, lst2)
+		
+		lst = []
+		while lst1 and lst2:
+			if lst1[0] < lst2[0]:
+				lst.append(lst1[0])
+				lst1 = lst1[1:]
+			else:
+				lst.append(lst2[0])
+				lst2 = lst2[1:]
+		if lst1:
+			lst += lst1 
+		if lst2:
+			lst += lst2 
+		return lst 
+		
+# 5297 jump game 3
+
+from collections import defaultdict
+class Solution:
+	def canReach(self, arr: List[int], start: int) -> bool:
+		size = len(arr)
+		next_idx = defaultdict(list)
+		targets = set()
+		for idx, val in enumerate(arr):
+			if val == 0:
+				targets.add(idx)
+			else:
+				nxt1, nxt2 = idx + val, idx - val 
+				if 0<= nxt1 < size:
+					next_idx[idx].append(nxt1)
+				if 0 <= nxt2 < size:
+					next_idx[idx].append(nxt2)
+
+		if start in targets:
+			return True
+
+		visited = [False for i in range(size)]
+		def dfs(next_idx, visited, start, targets):
+			visited[start] = True
+			for nxt in next_idx[start]:
+				if nxt in targets:
+					return True 
+				else:
+					if not visited[nxt]:
+						if dfs(next_idx, visited, nxt, targets):
+							return True 
+			return False 
+		
+		return dfs(next_idx, visited, start, targets)
+
+
+# 5298 verbal arithmetic puzzle
+
+class Solution:
+	def isSolvable(self, words: List[str], result: str) -> bool:
+		
+		charset = set(result)
+		for word in words:
+			charset.update(word)
+		
+		# assign
+		def assign(char2num, chars, nums):
+			if len(chars) == 0:
+				yield char2num 
+			else:
+				for ic, c in enumerate(chars):
+					for im, num in enumerate(nums):
+						char2num[c] = num 
+						for assignment in assign(char2num, chars[:ic]+chars[ic+1:], nums[:im]+nums[im+1:]):
+							yield assigment 
+						del char2num[c]
+		
+		def envalue(char2num, word):
+			num = "".join([char2num[c] for c in word])
+			if num[0] == "0":
+				return None 
+			return int(num)
+		
+		char2num = {}
+		chars = list(charset)
+		nums = [i for i in range(10)]
+		for assignment in assign(char2num, chars, nums):
+			num_words  = [envalue(assignment, word) for word in words]
+			num_result = envalue(assignment, result)
+			if None in num_words or num_result is None:
+				continue 
+			if sum(num_words) == num_result:
+				return True 
+		return False
+	
+	
+	
+        
